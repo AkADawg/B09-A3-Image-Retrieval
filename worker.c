@@ -30,7 +30,7 @@ Image* read_image(char *filename)
 	/**Error checking for successful memory allocation*/
 	if (!img) {
 		fprintf(stderr, "Unable to allocate memory\n");
-		return NULL;
+		exit(1);
 	}
 
 
@@ -39,13 +39,13 @@ Image* read_image(char *filename)
 
 	if (file == NULL) {
 		fprintf(stderr, "Error opening file\n");
-		return NULL;
+		exit(1);
 	}
 
 	/*Scan through file to get required information and store in struct*/
 	fscanf(file, "%s", line);
 	if (strcmp(line, "P3") != 0) {
-		return NULL;
+		exit(1);
 	}
 
 	// Read and store width
@@ -99,7 +99,7 @@ Image* read_image(char *filename)
 
 	if (error != 0) {
 		fprintf(stderr, "Error closing file\n");
-		return NULL;
+		exit(1);
 	}
 
 	//free(img->p);
@@ -250,11 +250,10 @@ CompRecord process_dir(char *dirname, Image *img, int out_fd) {
 
 		if (S_ISREG(sbuf.st_mode)) {
 			printf("%s\n", dp->d_name);
-			printf("the path is: %s and the directory name is: %s\n", path, dirname); //use path as it contains file name
+			//printf("the path is: %s and the directory name is: %s\n", path, dirname); //use path as it contains file name
 			result = compare_images(img, path);
 			if (result < mostSimilar) {
 				mostSimilar = result;
-
 				filename = path;
 			}
 		}
@@ -264,15 +263,19 @@ CompRecord process_dir(char *dirname, Image *img, int out_fd) {
 	strcpy(CRec.filename, filename);
 	CRec.distance = mostSimilar;
 
+	if (closedir(dirp) == -1) {
+		fprintf(stderr, "Error closing directory\n");
+	};
+
 	return CRec;
 }
 
 
-int main() {
+/*int main() {
 	process_dir("C:/Users/Amarp/OneDrive/Documents/Fax/Inbox", read_image("sample.ppm"), STDOUT_FILENO);
 	//compare_images(read_image("sample.ppm"), "top10.txt");
 	//print_image(read_image("sample.ppm"));
 	//read_image("hello.txt");
 	return 0;
-}
+}*/
 
